@@ -177,5 +177,3 @@ src/
 ```
 
 ---
-
-> Projeto em andamento. Personas sendo implementadas uma por vez. Última rota finalizada: `POST /tickets/cliente`
