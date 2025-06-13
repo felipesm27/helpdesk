@@ -72,3 +72,66 @@ export async function createTicketService(
     total,
   };
 }
+
+export async function getClientTicketsService(clientId: string) {
+  const tickets = await prisma.ticket.findMany({
+    where: { clientId },
+    include: {
+      technician: {
+        select: { id: true, name: true },
+      },
+      services: {
+        include: { service: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return tickets.map((ticket) => ({
+    id: ticket.id,
+    title: ticket.title,
+    status: ticket.status,
+    createdAt: ticket.createdAt,
+    technician: ticket.technician,
+    services: ticket.services.map((ts) => ts.service),
+    total: ticket.services.reduce((sum, ts) => sum + ts.service.price, 0),
+  }));
+}
+
+export async function getClientTicketByIdService(
+  clientId: string,
+  ticketId: string
+) {
+  const ticket = await prisma.ticket.findFirst({
+    where: {
+      id: ticketId,
+      clientId, // garante que o ticket é do cliente autenticado
+    },
+    include: {
+      technician: {
+        select: { id: true, name: true },
+      },
+      services: {
+        include: { service: true },
+      },
+    },
+  });
+
+  if (!ticket) {
+    throw new AppError(
+      "Chamado não encontrado ou não pertence a este cliente.",
+      404
+    );
+  }
+
+  return {
+    id: ticket.id,
+    title: ticket.title,
+    description: ticket.description,
+    status: ticket.status,
+    createdAt: ticket.createdAt,
+    technician: ticket.technician,
+    services: ticket.services.map((ts) => ts.service),
+    total: ticket.services.reduce((sum, ts) => sum + ts.service.price, 0),
+  };
+}

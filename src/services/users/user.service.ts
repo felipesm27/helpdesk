@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { AppError } from "@/utils/AppError";
+import bcrypt from "bcryptjs";
 
 export async function getUserProfile(userId: string) {
   const user = await prisma.user.findUnique({
@@ -23,11 +24,35 @@ export async function getUserProfile(userId: string) {
 
 export async function updateUserProfile(
   userId: string,
-  data: { name: string }
+  data: {
+    name?: string;
+    currentPassword?: string;
+    newPassword?: string;
+  }
 ) {
-  return await prisma.user.update({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
-    data,
+  });
+
+  if (!user) {
+    throw new AppError("Usuário não encontrado", 404);
+  }
+
+  if (data.newPassword) {
+    const isValid = await bcrypt.compare(data.currentPassword!, user.password);
+    if (!isValid) {
+      throw new AppError("Senha atual incorreta", 401);
+    }
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      name: data.name,
+      password: data.newPassword
+        ? await bcrypt.hash(data.newPassword, 10)
+        : undefined,
+    },
     select: {
       id: true,
       name: true,
@@ -36,6 +61,8 @@ export async function updateUserProfile(
       avatarUrl: true,
     },
   });
+
+  return updated;
 }
 
 export async function deleteUserAccount(userId: string) {
