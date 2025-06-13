@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { AppError } from "@/utils/AppError";
+import bcrypt from "bcryptjs";
 
 export async function listClientsService() {
   return await prisma.user.findMany({
@@ -10,4 +12,39 @@ export async function listClientsService() {
       createdAt: true,
     },
   });
+}
+
+interface UpdateUserData {
+  name?: string;
+  password?: string;
+}
+
+export async function updateUserByAdmin(userId: string, data: UpdateUserData) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    throw new AppError("Usuário não encontrado", 404);
+  }
+
+  if (user.role === "admin") {
+    throw new AppError("Não é permitido editar administradores", 403);
+  }
+
+  const updateData: UpdateUserData = {};
+
+  if (data.name) updateData.name = data.name;
+  if (data.password) updateData.password = await bcrypt.hash(data.password, 8);
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: updateData,
+    select: {
+      id: true,
+      name: true,
+      role: true,
+      updatedAt: true,
+    },
+  });
+
+  return updatedUser;
 }

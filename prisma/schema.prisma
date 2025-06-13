@@ -30,6 +30,7 @@ model User {
   tickets     Ticket[]    @relation("ClientTickets") // onDelete está na model Ticket
   assigned    Ticket[]    @relation("TechTickets")   // onDelete está na model Ticket
   createdAt   DateTime    @default(now())
+  updatedAt   DateTime? @updatedAt
   resetTokens PasswordResetToken[] // onDelete está na model PasswordResetToken
 }
 
