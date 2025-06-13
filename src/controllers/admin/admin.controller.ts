@@ -2,12 +2,14 @@ import { Request, Response } from "express";
 import {
   createSchedule,
   createService,
+  deleteSchedule,
   deleteUserByAdmin,
   disableService,
   listClientsService,
   listSchedules,
   listServices,
   listTechnicians,
+  reactivateSchedule,
   reactivateService,
   updateService,
   updateUserByAdmin,
@@ -133,6 +135,28 @@ export async function createScheduleController(req: Request, res: Response) {
 
   return res.status(201).json({
     message: "Horário criado com sucesso!",
+    schedule,
+  });
+}
+
+export async function deleteScheduleController(req: Request, res: Response) {
+  const scheduleId = req.params.id;
+
+  const result = await deleteSchedule(scheduleId);
+
+  return res.status(200).json(result);
+}
+
+export async function reactivateScheduleController(
+  req: Request,
+  res: Response
+) {
+  const scheduleId = req.params.id;
+
+  const schedule = await reactivateSchedule(scheduleId);
+
+  return res.status(200).json({
+    message: "Horário reativado com sucesso!",
     schedule,
   });
 }

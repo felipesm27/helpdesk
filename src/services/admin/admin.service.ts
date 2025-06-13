@@ -244,3 +244,35 @@ export async function createSchedule(data: { hour: string; userId: string }) {
 
   return schedule;
 }
+
+export async function deleteSchedule(scheduleId: string) {
+  const schedule = await prisma.schedule.findUnique({
+    where: { id: scheduleId },
+  });
+
+  if (!schedule) {
+    throw new AppError("Horário não encontrado", 404);
+  }
+
+  await prisma.schedule.update({
+    where: { id: scheduleId },
+    data: { active: false }, // Soft delete
+  });
+
+  return { message: "Horário desativado com sucesso." };
+}
+
+export async function reactivateSchedule(scheduleId: string) {
+  const schedule = await prisma.schedule.findUnique({
+    where: { id: scheduleId },
+  });
+
+  if (!schedule) {
+    throw new AppError("Horário não encontrado", 404);
+  }
+
+  return await prisma.schedule.update({
+    where: { id: scheduleId },
+    data: { active: true },
+  });
+}

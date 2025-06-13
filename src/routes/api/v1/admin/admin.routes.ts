@@ -4,12 +4,14 @@ import { ensureRole } from "@/middlewares/ensureRole";
 import {
   createScheduleController,
   createServiceController,
+  deleteScheduleController,
   deleteUserByAdminController,
   disableServiceController,
   listClientsController,
   listSchedulesController,
   listServicesController,
   listTechniciansController,
+  reactivateScheduleController,
   reactivateServiceController,
   updateServiceController,
   updateUserByAdminController,
@@ -31,5 +33,7 @@ routes.delete("/services/:id", disableServiceController);
 routes.patch("/services/:id/activate", reactivateServiceController);
 routes.get("/schedules", listSchedulesController);
 routes.post("/schedules", createScheduleController);
+routes.delete("/schedules/:id", deleteScheduleController);
+routes.patch("/schedules/:id/activate", reactivateScheduleController);
 
 export { routes as adminRoutes };

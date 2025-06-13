@@ -48,6 +48,7 @@ model Schedule {
   hour   String
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) // ✅
+  active  Boolean @default(true)
 }
 
 model Service {
