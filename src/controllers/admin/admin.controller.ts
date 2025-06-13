@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 import {
+  createSchedule,
   createService,
   deleteUserByAdmin,
   disableService,
   listClientsService,
+  listSchedules,
   listServices,
   listTechnicians,
   reactivateService,
@@ -12,6 +14,7 @@ import {
 } from "@/services/admin/admin.service";
 import { AppError } from "@/utils/AppError";
 import {
+  createScheduleSchema,
   createServiceSchema,
   updateServiceSchema,
   updateUserByAdminSchema,
@@ -102,29 +105,34 @@ export async function disableServiceController(req: Request, res: Response) {
   });
 }
 
-// export async function reactivateServiceController(req: Request, res: Response) {
-//   const serviceId = req.params.id;
-
-//   const service = await reactivateService(serviceId);
-
-//   return res.status(200).json({
-//     message: "Serviço reativado com sucesso!",
-//     service,
-//   });
-// }
-
 export async function reactivateServiceController(req: Request, res: Response) {
   const serviceId = req.params.id;
 
-  try {
-    const service = await reactivateService(serviceId);
+  const service = await reactivateService(serviceId);
 
-    return res.status(200).json({
-      message: "Serviço reativado com sucesso!",
-      service,
-    });
-  } catch (error) {
-    console.error("Erro ao reativar serviço:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+  return res.status(200).json({
+    message: "Serviço reativado com sucesso!",
+    service,
+  });
+}
+
+export async function listSchedulesController(req: Request, res: Response) {
+  const schedules = await listSchedules();
+
+  return res.status(200).json({ schedules });
+}
+
+export async function createScheduleController(req: Request, res: Response) {
+  const parsed = createScheduleSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    throw new AppError("Dados inválidos", 400);
   }
+
+  const schedule = await createSchedule(parsed.data);
+
+  return res.status(201).json({
+    message: "Horário criado com sucesso!",
+    schedule,
+  });
 }

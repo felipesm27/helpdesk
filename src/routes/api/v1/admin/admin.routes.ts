@@ -2,10 +2,12 @@ import { Router } from "express";
 import { ensureAuthenticated } from "@/middlewares/ensureAuthenticated";
 import { ensureRole } from "@/middlewares/ensureRole";
 import {
+  createScheduleController,
   createServiceController,
   deleteUserByAdminController,
   disableServiceController,
   listClientsController,
+  listSchedulesController,
   listServicesController,
   listTechniciansController,
   reactivateServiceController,
@@ -27,5 +29,7 @@ routes.post("/services", createServiceController);
 routes.put("/services/:id", updateServiceController);
 routes.delete("/services/:id", disableServiceController);
 routes.patch("/services/:id/activate", reactivateServiceController);
+routes.get("/schedules", listSchedulesController);
+routes.post("/schedules", createScheduleController);
 
 export { routes as adminRoutes };

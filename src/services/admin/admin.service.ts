@@ -188,3 +188,59 @@ export async function reactivateService(serviceId: string) {
     },
   });
 }
+
+export async function listSchedules() {
+  const schedules = await prisma.schedule.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return schedules;
+}
+
+export async function createSchedule(data: { hour: string; userId: string }) {
+  const user = await prisma.user.findUnique({
+    where: { id: data.userId },
+  });
+
+  if (!user) {
+    throw new AppError("Técnico não encontrado", 404);
+  }
+
+  if (user.role !== "tecnico") {
+    throw new AppError("Horários só podem ser atribuídos a técnicos", 400);
+  }
+
+  // Verifica se já existe horário duplicado para o mesmo técnico
+  const existing = await prisma.schedule.findFirst({
+    where: {
+      hour: data.hour,
+      userId: data.userId,
+    },
+  });
+
+  if (existing) {
+    throw new AppError("Este técnico já possui esse horário cadastrado", 409);
+  }
+
+  const schedule = await prisma.schedule.create({
+    data: {
+      hour: data.hour,
+      userId: data.userId,
+    },
+    select: {
+      id: true,
+      hour: true,
+      userId: true,
+    },
+  });
+
+  return schedule;
+}
