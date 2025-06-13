@@ -82,3 +82,109 @@ export async function deleteUserByAdmin(userId: string) {
 
   return { message: "Usuário excluído com sucesso." };
 }
+
+export async function createService(data: { name: string; price: number }) {
+  const newService = await prisma.service.create({
+    data: {
+      name: data.name,
+      price: data.price,
+      active: true, // sempre true na criação
+    },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      active: true,
+      createdAt: true,
+    },
+  });
+
+  return newService;
+}
+
+export async function updateService(
+  serviceId: string,
+  data: { name?: string; price?: number }
+) {
+  const service = await prisma.service.findUnique({ where: { id: serviceId } });
+
+  if (!service) {
+    throw new AppError("Serviço não encontrado", 404);
+  }
+
+  const updated = await prisma.service.update({
+    where: { id: serviceId },
+    data,
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      active: true,
+      createdAt: true,
+    },
+  });
+
+  return updated;
+}
+
+export async function listServices() {
+  return await prisma.service.findMany({
+    where: { active: true },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      active: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function desactivedServices() {
+  return await prisma.service.findMany({
+    where: { active: false },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      active: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function disableService(serviceId: string) {
+  const service = await prisma.service.findUnique({ where: { id: serviceId } });
+
+  if (!service) throw new AppError("Serviço não encontrado", 404);
+
+  return prisma.service.update({
+    where: { id: serviceId },
+    data: { active: false },
+    select: {
+      id: true,
+      name: true,
+      active: true,
+      price: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function reactivateService(serviceId: string) {
+  const service = await prisma.service.findUnique({ where: { id: serviceId } });
+
+  if (!service) throw new AppError("Serviço não encontrado", 404);
+
+  return await prisma.service.update({
+    where: { id: serviceId },
+    data: { active: true },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      active: true,
+      createdAt: true,
+    },
+  });
+}
