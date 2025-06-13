@@ -62,3 +62,23 @@ export async function updateUserByAdmin(userId: string, data: UpdateUserData) {
 
   return updatedUser;
 }
+
+export async function deleteUserByAdmin(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new AppError("Usuário não encontrado", 404);
+  }
+
+  if (user.role === "admin") {
+    throw new AppError("Não é permitido excluir administradores", 403);
+  }
+
+  await prisma.user.delete({
+    where: { id: userId },
+  });
+
+  return { message: "Usuário excluído com sucesso." };
+}

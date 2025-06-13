@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+  deleteUserByAdmin,
   listClientsService,
   listTechnicians,
   updateUserByAdmin,
@@ -33,4 +34,24 @@ export async function updateUserByAdminController(req: Request, res: Response) {
     message: "Usuário atualizado com sucesso!",
     user,
   });
+}
+
+// export async function deleteUserByAdminController(req: Request, res: Response) {
+//   const userId = req.params.id;
+
+//   const result = await deleteUserByAdmin(userId);
+
+//   return res.status(200).json(result);
+// }
+
+export async function deleteUserByAdminController(req: Request, res: Response) {
+  const userId = req.params.id;
+
+  try {
+    const result = await deleteUserByAdmin(userId);
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Erro ao excluir usuário:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 }
