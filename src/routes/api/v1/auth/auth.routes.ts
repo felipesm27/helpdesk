@@ -2,9 +2,9 @@ import { Router } from "express";
 import {
   registerController,
   loginController,
-  changePasswordController,
   forgotPasswordController,
   resetPasswordController,
+  changePasswordController,
 } from "@/controllers/auth/auth.controller";
 import { ensureAuthenticated } from "@/middlewares/ensureAuthenticated";
 

@@ -32,18 +32,8 @@ export const updateUserProfileController = async (
     user,
   });
 };
-// export async function deleteProfileController(req: Request, res: Response) {
-//   const result = await deleteUserAccount(req.user!.id);
-
-//   return res.status(200).json(result);
-// }
-
 export async function deleteProfileController(req: Request, res: Response) {
-  try {
-    const result = await deleteUserAccount(req.user!.id);
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("Erro ao excluir conta:", error);
-    return res.status(500).json({ error: "Erro interno ao excluir conta" });
-  }
+  const result = await deleteUserAccount(req.user!.id);
+
+  return res.status(200).json(result);
 }

@@ -14,7 +14,6 @@ import {
   registerUser,
   resetPassword,
 } from "@/services/auth/auth.service";
-import { Role } from "@prisma/client";
 
 export async function registerController(req: Request, res: Response) {
   const parsed = registerSchema.safeParse(req.body);
@@ -31,25 +30,8 @@ export async function registerController(req: Request, res: Response) {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: Role,
+      role: user.role,
     },
-  });
-}
-
-export async function loginController(req: Request, res: Response) {
-  const parsed = loginSchema.safeParse(req.body);
-
-  if (!parsed.success) {
-    throw new AppError("Credenciais inválidas", 400);
-  }
-
-  const { email, password } = parsed.data;
-
-  const result = await loginUser(email, password);
-
-  return res.status(200).json({
-    message: "Login realizado com sucesso",
-    ...result,
   });
 }
 
@@ -69,6 +51,25 @@ export async function changePasswordController(req: Request, res: Response) {
   );
 
   return res.status(200).json(result);
+}
+
+export async function loginController(req: Request, res: Response) {
+  const parsed = loginSchema.safeParse(req.body);
+  console.log(req.body);
+  console.log(req.headers["content-type"]);
+
+  if (!parsed.success) {
+    throw new AppError("Credenciais inválidas", 400);
+  }
+
+  const { email, password } = parsed.data;
+
+  const result = await loginUser(email, password);
+
+  return res.status(200).json({
+    message: "Login realizado com sucesso",
+    ...result,
+  });
 }
 
 export async function forgotPasswordController(req: Request, res: Response) {
