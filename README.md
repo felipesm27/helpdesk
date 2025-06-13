@@ -1,73 +1,156 @@
-# HelpDesk API
+# HelpDesk API – Documentação Completa (Backend)
 
-API RESTful para gerenciamento de chamados técnicos (HelpDesk), desenvolvida com Node.js, Express, Prisma e TypeScript, seguindo o desafio prático do sistema de chamados.
+Esta é a documentação completa da API desenvolvida para o sistema de chamados HelpDesk.  
+A API foi construída com Node.js, Express, TypeScript, Prisma ORM e validada com Zod.
 
-## 🧠 Funcionalidades
+---
 
-### 🔐 Autenticação
+## 🔐 Autenticação
 
-- Registro de usuário com papel (`admin`, `tecnico`, `cliente`)
-- Login com JWT
-- Troca de senha autenticada
-- Recuperação de senha com envio por e-mail (Nodemailer)
-- Middlewares: `ensureAuthenticated`, `ensureRole`
-- Validação de variáveis de ambiente como `JWT_SECRET`
+### POST /auth/login
 
-### 👤 Usuário
+- Login com e-mail e senha
+- Retorna token JWT
 
-- Visualizar perfil (`GET /users/profile`)
-- Atualizar nome (`PUT /users/profile`)
-- Excluir conta (`DELETE /users/profile`)
-- Avatar (atualmente não implementado por decisão)
+### POST /auth/forgot-password
 
-### 👥 Personas
+- Envia e-mail com link para redefinir senha
 
-#### Cliente
+### POST /auth/reset-password
 
-- Criar chamados (`POST /tickets/cliente`)
-- Listar chamados (`GET /tickets/cliente`)
-- Ver detalhe de chamado (`GET /tickets/cliente/:id`) [pendente]
-- Campos obrigatórios: técnico, horário, serviços, descrição, título
+- Redefine a senha com token enviado por e-mail
 
-#### Técnico
+---
 
-- Ver chamados atribuídos (em planejamento)
-- Atualizar status de chamados (em planejamento)
+## 👤 Perfil: Cliente
 
-#### Admin
+### POST /tickets/cliente
 
-- CRUD de serviços (em planejamento)
-- Gerenciamento de clientes e técnicos (em planejamento)
+- Criação de chamado
+- Campos: `title`, `description`, `technicianId`, `hourId`, `services[]`
 
-## 🗄️ Tecnologias
+### GET /tickets/cliente
+
+- Listagem de chamados do cliente autenticado
+
+### PUT /users/profile
+
+- Atualização de perfil (nome, senha)
+- Rota genérica usada por todos os usuários
+
+### DELETE /users/profile
+
+- Exclusão da própria conta
+
+---
+
+## 👨‍🔧 Perfil: Técnico
+
+### GET /tickets/tecnico
+
+- Lista chamados atribuídos ao técnico autenticado
+
+### GET /tickets/tecnico/:id
+
+- Detalhes de um chamado atribuído
+
+### PATCH /tickets/tecnico/:id/status
+
+- Atualiza status: `ABERTO`, `EM_ATENDIMENTO`, `ENCERRADO`
+
+### GET /tickets/tecnico/:id/logs
+
+- Histórico de alterações de status do chamado
+
+---
+
+## 🛡️ Perfil: Admin
+
+### Usuários (clientes e técnicos)
+
+#### GET /admin/users/clientes
+
+#### GET /admin/users/tecnicos
+
+- Lista usuários por tipo
+
+#### PUT /admin/users/:id
+
+- Atualiza nome e senha
+
+#### DELETE /admin/users/:id
+
+- Exclui usuário do sistema
+
+---
+
+### Serviços
+
+#### POST /admin/services
+
+- Cria novo serviço
+- Valida nome duplicado
+
+#### PUT /admin/services/:id
+
+- Edita nome e preço do serviço
+
+#### DELETE /admin/services/:id
+
+- Desativa o serviço (`active: false`)
+
+#### PATCH /admin/services/:id/activate
+
+- Reativa o serviço (`active: true`)
+
+---
+
+### Horários (schedules)
+
+#### GET /admin/schedules
+
+- Lista todos os horários ativos cadastrados por técnicos
+
+#### POST /admin/schedules
+
+- Cria horário para um técnico
+- Horários válidos: `"07:00"` até `"18:00"`
+- Impede duplicidade (mesmo técnico + hora)
+
+#### DELETE /admin/schedules/:id
+
+- Desativa o horário (`active: false`)
+
+#### PATCH /admin/schedules/:id/activate
+
+- Reativa o horário (`active: true`)
+
+---
+
+## 📝 Backlog Técnico (pendências)
+
+### 🔧 Melhorias futuras
+
+- [ ] Adicionar `disabled: boolean` no model `User` (para soft delete de cliente/técnico)
+- [ ] Atualizar listagens de usuários para ignorar `disabled = true`
+- [ ] Criar relação direta entre `Ticket` e `Schedule` (`scheduleId`) para controle de agenda
+- [ ] Impedir exclusão de horário se estiver vinculado a um Ticket
+- [ ] Adicionar paginação em listagens longas (clientes, técnicos, serviços)
+- [ ] Testes automatizados com Jest (unitários e integração)
+
+---
+
+## 📦 Tecnologias utilizadas
 
 - Node.js + Express
 - TypeScript
 - Prisma ORM + PostgreSQL
-- Zod (validações)
-- JWT + Bcrypt
-- Nodemailer (com Ethereal)
-- Docker (PostgreSQL em dev)
+- Zod (validação)
+- JWT para autenticação
+- Nodemailer (reset de senha)
+- Docker (opcional para banco e deploy)
 
-## ▶️ Como executar
-
-```bash
-# Instale as dependências
-npm install
-
-# Configure o .env
-cp .env.example .env
-
-# Crie o banco com Docker
-docker compose up -d
-
-# Rode as migrações e o seed
-npx prisma migrate dev --name init
-npx tsx prisma/seed.ts
-
-# Rode o servidor
-npx tsx src/server.ts
-```
+---
 
 ## 📂 Estrutura do projeto
 

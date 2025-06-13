@@ -84,11 +84,21 @@ export async function deleteUserByAdmin(userId: string) {
 }
 
 export async function createService(data: { name: string; price: number }) {
-  const newService = await prisma.service.create({
+  const exists = await prisma.service.findFirst({
+    where: {
+      name: data.name,
+    },
+  });
+
+  if (exists) {
+    throw new AppError("Já existe um serviço com esse nome", 409);
+  }
+
+  return await prisma.service.create({
     data: {
       name: data.name,
       price: data.price,
-      active: true, // sempre true na criação
+      active: true,
     },
     select: {
       id: true,
@@ -98,8 +108,6 @@ export async function createService(data: { name: string; price: number }) {
       createdAt: true,
     },
   });
-
-  return newService;
 }
 
 export async function updateService(
