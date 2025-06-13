@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import {
   listClientsService,
+  listTechnicians,
   updateUserByAdmin,
 } from "@/services/admin/admin.service";
 import { AppError } from "@/utils/AppError";
@@ -9,6 +10,12 @@ import { updateUserByAdminSchema } from "@/schemas/admin.schema";
 export async function listClientsController(req: Request, res: Response) {
   const clients = await listClientsService();
   return res.status(200).json({ clients });
+}
+
+export async function listTechniciansController(req: Request, res: Response) {
+  const technicians = await listTechnicians();
+
+  return res.status(200).json({ technicians });
 }
 
 export async function updateUserByAdminController(req: Request, res: Response) {

@@ -1,18 +1,19 @@
 import { Router } from "express";
-import { usersAdminRoutes } from "./users.admin.routes";
 import { ensureAuthenticated } from "@/middlewares/ensureAuthenticated";
 import { ensureRole } from "@/middlewares/ensureRole";
-import { updateUserByAdminController } from "@/controllers/admin/admin.controller";
+import {
+  listClientsController,
+  listTechniciansController,
+  updateUserByAdminController,
+} from "@/controllers/admin/admin.controller";
 
 const routes = Router();
 
-routes.use("/users", usersAdminRoutes);
+routes.use(ensureAuthenticated);
+routes.use(ensureRole("admin"));
 
-routes.put(
-  "/users/:id",
-  ensureAuthenticated,
-  ensureRole("admin"),
-  updateUserByAdminController
-);
+routes.get("/users/clientes", listClientsController);
+routes.get("/users/tecnicos", listTechniciansController);
+routes.put("/users/:id", updateUserByAdminController);
 
 export { routes as adminRoutes };

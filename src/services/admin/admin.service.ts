@@ -14,6 +14,20 @@ export async function listClientsService() {
   });
 }
 
+export async function listTechnicians() {
+  const technicians = await prisma.user.findMany({
+    where: { role: "tecnico" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: true,
+    },
+  });
+
+  return technicians;
+}
+
 interface UpdateUserData {
   name?: string;
   password?: string;
